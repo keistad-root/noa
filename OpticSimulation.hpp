@@ -29,8 +29,8 @@ public:
   void setCanvas(Double_t x_fi);                                                  //스크린을 세울 x위치
   void setLensCenterAndFocus(Double_t x, Double_t w, Double_t f, Double_t n);     //렌즈(중심, 두께/2, 초점, 렌즈의 굴절률);
   void drawLens();                                                                //렌즈 그리기
-  void findFinal();                                                               //광선 그리기
-  void drawGraph();                                                               //시각화
+  void findFinal(Double_t dx, Int_t colorNumber);                                 //광선 그리기
+  void drawGraph(TString str);                                                    //시각화
   ~environment();
 };
 
@@ -113,13 +113,13 @@ void environment::nextPosition(Double_t dx)
     }
     else
     {
-      if (path[2] < 3.14159265358979)
+      if (path[2] < 3.14159265358979 / 2 or (3.14159265358979 < path[2] && 3.14159265358979 * 3 / 2 < path[2]))
       {
-        path[2] = -asin(sin(path[2] / n_length));
+        path[2] = asin(sin(path[2] / n_length));
       }
       else
       {
-        path[2] = asin(sin(path[2] / n_length));
+        path[2] = -asin(sin(path[2] / n_length));
       }
     }
   } //렌즈의 좌상부를 통과할 때 스넬의 법칙을 이용해 구한 각도의 변화
@@ -133,13 +133,13 @@ void environment::nextPosition(Double_t dx)
     }
     else
     {
-      if (path[2] < 3.14159265358979)
+      if (path[2] < 3.14159265358979 / 2 or (3.14159265358979 < path[2] && 3.14159265358979 * 3 / 2 < path[2]))
       {
-        path[2] = -asin(n_length * sin(path[2]));
+        path[2] = asin(n_length * sin(path[2]));
       }
       else
       {
-        path[2] = asin(n_length * sin(path[2]));
+        path[2] = -asin(n_length * sin(path[2]));
       }
     }
   } //렌즈의 우상부를 통과할 때 스넬의 법칙을 이용해 구한 각도의 변화
@@ -153,13 +153,13 @@ void environment::nextPosition(Double_t dx)
     }
     else
     {
-      if (path[2] < 3.14159265358979)
+      if (path[2] < 3.14159265358979 / 2 or (3.14159265358979 < path[2] && 3.14159265358979 * 3 / 2 < path[2]))
       {
-        path[2] = -asin(sin(path[2]) / n_length);
+        path[2] = asin(sin(path[2]) / n_length);
       }
       else
       {
-        path[2] = asin(sin(path[2]) / n_length);
+        path[2] = -asin(sin(path[2]) / n_length);
       }
     }
   } //렌즈의 좌하부를 통과할 때 스넬의 법칙을 이용해 구한 각도의 변화
@@ -173,7 +173,7 @@ void environment::nextPosition(Double_t dx)
     }
     else
     {
-      if (path[2] < 3.14159265358979)
+      if (path[2] < 3.14159265358979 / 2 or (3.14159265358979 < path[2] && 3.14159265358979 * 3 / 2 < path[2]))
       {
         path[2] = asin(n_length * sin(path[2]));
       }
@@ -191,9 +191,8 @@ void environment::nextPosition(Double_t dx)
   }
 }
 
-void environment::findFinal()
+void environment::findFinal(Double_t dx, Int_t colorNumber)
 {
-  Double_t dx = 0.0001;
   path[0] = initial[0];
   path[1] = initial[1];
   path[2] = initial[2];
@@ -207,13 +206,14 @@ void environment::findFinal()
       break;
     i++;
   }
-  g1->SetLineColor(kYellow + 1);
+  Int_t color[6] = {632, 800, 400, 416, 600, 880};
+  g1->SetLineColor(color[colorNumber]);
   mg->Add(g1);
 } //광원의 최종 위치를 찾는다.
 
-void environment::drawGraph()
+void environment::drawGraph(TString str)
 {
-  mg->SetTitle("focus of convex lens");
+  mg->SetTitle(str);
   mg->GetXaxis()->SetTitle("x[mm]");
   mg->GetYaxis()->SetTitle("y[mm]");
   mg->Draw("AL");
